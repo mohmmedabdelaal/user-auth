@@ -1,34 +1,26 @@
 const express = require('express');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const mongoose = require('mongoose');
 const keys = require('./config/keys');
+
+require('./serves/passport');
+require('./routes/RoutesAuth');
+
+
 const app = express();
 
+mongoose.set('strictQuery', false);
+mongoose.connect(keys.MONOGODB_CLIENT_ID, () => {
+    console.log('Connected to MongoDB');
+});
+
+require('./routes/RoutesAuth')(app);
 // const GOOGLE_CLIENT_ID =process.env.GOOGLE_CLIENT_ID;
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID:
-        keys.GOOGLE_CLIENT_ID,
-      clientSecret: keys.GOOGLE_SECRET_KEY,
-      callbackURL: '/auth/google/callback',
-    },
-    (accessToken,refreshToken,profile,done) => {
-      console.log(`accessToken: ${accessToken}`);
-      console.log(`refreshToken: ${refreshToken}`);
-      console.log(`profile: ${profile}`);
-      console.log(`done: ${done}`);
-    }
-  )
-);
-
-app.get('/auth/google/', passport.authenticate('google',{
-    scope: ['profile','email']
-}))
-
-app.get('/auth/google/callback',passport.authenticate('google'));
+////0663686058
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT);
+app.listen(PORT, () => {
+    console.log('Server is running at port http://localhost:5000');
+});
+
+
