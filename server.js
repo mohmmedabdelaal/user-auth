@@ -1,21 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
 const keys = require('./config/keys');
-
+require('./models/User');
 require('./serves/passport');
-require('./routes/RoutesAuth');
 
-
-const app = express();
 
 mongoose.set('strictQuery', false);
 mongoose.connect(keys.MONOGODB_CLIENT_ID, () => {
     console.log('Connected to MongoDB');
 });
 
+const app = express();
+app.use(cookieSession({
+    maxAge: 3600 * 24 * 60 * 1000,
+
+    keys: [keys.COOKIE_KEY],
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 require('./routes/RoutesAuth')(app);
-// const GOOGLE_CLIENT_ID =process.env.GOOGLE_CLIENT_ID;
-////0663686058
+
 
 const PORT = process.env.PORT || 5000;
 
